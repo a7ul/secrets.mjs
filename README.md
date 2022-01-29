@@ -1,8 +1,26 @@
 # 🕵️ Secrets.mjs
 
-Manage your team's local environment secrets with gcloud securely.
+Effortlessly manage your team's local dev environment secrets and env with gcloud securely.
 
-This script is a single file pure nodejs script.
+## Why?
+
+When you are working in a team of developers often times you are running services locally and you need to share and manage secrets with your team.
+
+Google cloud storage is a great tool for this:
+
+🔒 **Access control**: You can store secrets securely in a private bucket and share the access to that bucket with all your team members.
+
+📚 **Version control**: You can enable versioning in the gcloud bucket which would help you to keep track of changes to your secrets.
+
+✨ **Passwordless authentication**: Gcloud cli uses you gcloud account to authenticate with the cloud storage bucket. This means you can acces, modify and share secrets without having to worry about passwords.
+
+**Secrets.mjs** is a cli which uses the pre installed gcloud sdk to provide an easier interface to manage your secrets. With it you can:
+
+📥 **Download** secrets from the shared cloud storage bucket.
+
+⬆️ **Upload** and make changes to the shared cloud storage bucket.
+
+👀 **View diffs** between the local version and the cloud storage version of the secrets.
 
 ## Pre requisites
 
@@ -47,20 +65,44 @@ It is recommended you commit secrets.mjs with your repo, so its easier to run wh
 
 **Download secrets from shared google cloud storage bucket**
 
+Download all secrets from the shared google cloud storage bucket to the local secrets directory.
+
 ```sh
  ./secrets.mjs download
 ```
 
+Download only selected secret files from the shared google cloud storage bucket to the local secrets directory.
+
+```sh
+ ./secrets.mjs download ./secrets/file1.json ./secrets/file2.env ./secrets/file3.txt ...
+```
+
 **Upload secrets from local to shared google cloud storage bucket**
+
+Upload or update all secrets from the local secrets directory to the shared google cloud storage bucket.
 
 ```sh
  ./secrets.mjs upload
 ```
 
+Upload only selected secret files from the local secrets directory to the shared google cloud storage bucket.
+
+```sh
+ ./secrets.mjs upload ./secrets/file1.json ./secrets/file2.env ./secrets/file3.txt ...
+```
+
 **Diff your local secret files with the ones stored in shared google cloud storage bucket**
+
+View the diff between all your local secrets and the secret files stored in shared google cloud storage bucket.
 
 ```sh
 ./secrets.mjs diff
+```
+
+View the diff between selected local secret files and the secret files stored in shared google cloud storage bucket.
+
+```sh
+./secrets.mjs diff ./secrets/file1.json ./secrets/file2.env ./secrets/file3.txt ...
 ```
 
 ## Requirements
