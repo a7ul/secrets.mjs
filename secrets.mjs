@@ -144,7 +144,12 @@ async function download(localPath, targetPath = localPath, silent = false) {
 }
 
 async function downloadAll(targetPath = localSecretsDir, silent = false) {
-  await exec(`gsutil cp -r "gs://${GCS_BUCKET}/*" "${targetPath}"`, silent);
+  try {
+    await exec(`gsutil cp -r "gs://${GCS_BUCKET}/*" "${targetPath}"`, silent);
+  } catch (e) {
+    log.debug(e);
+    return e;
+  }
 }
 
 async function diff(src, dest) {
