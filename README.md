@@ -1,6 +1,6 @@
 # 🕵️ Secrets.mjs
 
-Effortlessly manage your team's local dev environment secrets with gcloud securely.
+Effortlessly and securely manage your team's local dev environment secrets with gcloud storage bucket.
 
 ## Why?
 
