@@ -63,7 +63,7 @@ It is recommended you commit secrets.mjs with your repo, so its easier to run wh
 
 ## Usage and features
 
-**Download secrets from shared google cloud storage bucket**
+### 📥 Download secrets from shared google cloud storage bucket
 
 Download all secrets from the shared google cloud storage bucket to the local secrets directory.
 
@@ -77,7 +77,10 @@ Download only selected secret files from the shared google cloud storage bucket 
  ./secrets.mjs download ./secrets/file1.json ./secrets/file2.env ./secrets/file3.txt ...
 ```
 
-**Upload secrets from local to shared google cloud storage bucket**
+<img alt="download" src="https://user-images.githubusercontent.com/4029423/151678178-242997d5-eecb-436d-a286-8abdb23d4b87.png">
+
+
+### ⬆️ Upload secrets from local to shared google cloud storage bucket
 
 Upload or update all secrets from the local secrets directory to the shared google cloud storage bucket.
 
@@ -91,7 +94,10 @@ Upload only selected secret files from the local secrets directory to the shared
  ./secrets.mjs upload ./secrets/file1.json ./secrets/file2.env ./secrets/file3.txt ...
 ```
 
-**Diff your local secret files with the ones stored in shared google cloud storage bucket**
+https://user-images.githubusercontent.com/4029423/151678242-55dd2571-30e3-4442-a225-eb58288a2781.mov
+
+
+### ✨ Diff your local secret files with the ones stored in shared google cloud storage bucket
 
 View the diff between all your local secrets and the secret files stored in shared google cloud storage bucket.
 
@@ -104,6 +110,8 @@ View the diff between selected local secret files and the secret files stored in
 ```sh
 ./secrets.mjs diff ./secrets/file1.json ./secrets/file2.env ./secrets/file3.txt ...
 ```
+
+<img alt="diff" src="https://user-images.githubusercontent.com/4029423/151678175-60bd1134-cb11-47cc-8b9e-858ec61cab69.png">
 
 ## Requirements
 
