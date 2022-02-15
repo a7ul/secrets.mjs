@@ -18,11 +18,12 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 
-import readline from "readline";
-import { spawn } from "child_process";
-import path from "path";
-import { fileURLToPath } from "url";
-import crypto from "crypto";
+import { spawn } from "node:child_process";
+import crypto from "node:crypto";
+import path from "node:path";
+import { stdin as input, stdout as output } from "node:process";
+import readline from "node:readline";
+import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const scriptName = path.basename(scriptPath);
@@ -70,14 +71,11 @@ async function ask(q = "Question?", choices = []) {
   if (allChoices) {
     ques = q + "\n" + allChoices + "\n> ";
   }
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  const rl = readline.createInterface({ input, output });
   return new Promise((resolve) => {
     rl.question(ques, function (answer) {
-      resolve(answer);
       rl.close();
+      resolve(answer);
     });
   });
 }
@@ -120,7 +118,9 @@ function getBucketPath(fullFilePath) {
 }
 
 async function uploadAll() {
-  await exec(`gsutil cp -r "${localSecretsDir}/*" "gs://${GCS_BUCKET}"`);
+  await exec(
+    `gsutil -m -o "GSUtil:parallel_process_count=1" cp -r "${localSecretsDir}/*" "gs://${GCS_BUCKET}"`
+  );
 }
 
 async function upload(localPath) {
@@ -145,16 +145,19 @@ async function download(localPath, targetPath = localPath, silent = false) {
 
 async function downloadAll(targetPath = localSecretsDir, silent = false) {
   try {
-    await exec(`gsutil cp -r "gs://${GCS_BUCKET}/*" "${targetPath}"`, silent);
+    await exec(
+      `gsutil -m -o "GSUtil:parallel_process_count=1" cp -r "gs://${GCS_BUCKET}/*" "${targetPath}"`,
+      silent
+    );
   } catch (e) {
     log.debug(e);
     return e;
   }
 }
 
-async function diff(src, dest) {
+async function diff(current, prev) {
   try {
-    return await exec(`git --no-pager diff --color ${src} ${dest}`);
+    return await exec(`git --no-pager diff --color ${prev} ${current}`);
   } catch (e) {
     log.debug(e);
     return e;
@@ -189,7 +192,7 @@ async function diffProcessor(selectedFiles = []) {
   await exec(`mkdir -p ${tmpDir}`, true);
   if (selectedFiles.length === 0) {
     await downloadAll(tmpDir, true);
-    const p = await diff(tmpDir, localSecretsDir);
+    const p = await diff(localSecretsDir, tmpDir);
     hasDiff = hasDiff || Boolean(p?.stdout || p?.stderr);
   } else {
     for (const file of selectedFiles) {
@@ -237,40 +240,41 @@ async function uploadCommand(args, positional, options) {
 
 function helpCommand() {
   log.info(`
-  🕵️  Secrets: Manage your team's local environment secrets with gcloud
-  
-  📖 Usage: ./${scriptName} <command> [options]
-  
-  Commands:
-  ---------
-  
-  ⬆️  upload: ./${scriptName} upload [ <file1> <file2> ... ]
-  
-     Upload and update the secrets in the cloud storage.
-     You will be shown a diff of the changes which you can review before the actual upload.
-  
-     <file>: optionally you can specify the selected files to upload.
+    🕵️  Secrets: Manage your team's local environment secrets with gcloud
     
-  📥 download: ./${scriptName} download [ <file1> <file2> ... ]
+    📖 Usage: ./${scriptName} <command> [options]
+    
+    Commands:
+    ---------
+    
+    ⬆️  upload: ./${scriptName} upload [ <file1> <file2> ... ]
+    
+       Upload and update the secrets in the cloud storage.
+       You will be shown a diff of the changes which you can review before the actual upload.
+    
+       <file>: optionally you can specify the selected files to upload.
+      
+    📥 download: ./${scriptName} download [ <file1> <file2> ... ]
+    
+       Download and update the secrets in your local dev environment from the cloud storage.
+       
+       <file>: optionally you can specify the selected files to download.
+    
+    👀 diff: ./${scriptName} diff [ <file1> <file2> ... ]
+    
+       Displays the diff between your local files and the files in the cloud storage.
   
-     Download and update the secrets in your local dev environment from the cloud storage.
-     
-     <file>: optionally you can specify the selected files to download.
-  
-  👀 diff: ./${scriptName} diff [ <file1> <file2> ... ]
-  
-     Displays the diff between your local files and the files in the cloud storage.
-
-     <file>: optionally you can specify the selected files to check the diff.
-  
-  💛 help: ./${scriptName} help
-  
-     Show this help text.
-  
+       <file>: optionally you can specify the selected files to check the diff.
+    
+    💛 help: ./${scriptName} help
+    
+       Show this help text.
+    
+    Global options: 
   Global options: 
-    --debug: enable debugging
-    -d: enable debugging
-`);
+    Global options: 
+      -d, --debug: enable debugging
+  `);
 }
 
 function unknownCommand(command, args) {
